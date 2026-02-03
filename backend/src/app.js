@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
 const { initDatabase } = require('../models');
 
 const app = express();
@@ -19,6 +21,9 @@ const subjectRoutes = require('../routes/subject.routes');
 const gradeRoutes = require('../routes/grade.routes');
 const paymentRoutes = require('../routes/payment.routes');
 const notificationRoutes = require('../routes/notification.routes');
+
+// Load Swagger specification
+const swaggerDocument = YAML.load('./swagger.yaml');
 
 // Middleware
 app.use(helmet());
@@ -57,6 +62,9 @@ app.use('/api/subjects', subjectRoutes);
 app.use('/api/grades', gradeRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 404 handler
 app.use(notFoundMiddleware);
