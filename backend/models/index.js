@@ -182,6 +182,33 @@ const initDatabase = async () => {
       )
     `);
     
+    // Parents table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS parents (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        first_name VARCHAR(100) NOT NULL,
+        last_name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) UNIQUE,
+        phone VARCHAR(20),
+        address TEXT,
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    
+    // Student-Parent relationship
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS student_parents (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        student_id UUID REFERENCES students(id) ON DELETE CASCADE,
+        parent_id UUID REFERENCES parents(id) ON DELETE CASCADE,
+        relationship VARCHAR(50) NOT NULL,
+        is_primary BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT NOW(),
+        UNIQUE(student_id, parent_id)
+      )
+    `);
+    
     console.log('Database schema initialized successfully');
   } catch (error) {
     console.error('Error initializing database:', error);

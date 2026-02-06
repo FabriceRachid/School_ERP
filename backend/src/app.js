@@ -21,6 +21,7 @@ const subjectRoutes = require('../routes/subject.routes');
 const gradeRoutes = require('../routes/grade.routes');
 const paymentRoutes = require('../routes/payment.routes');
 const notificationRoutes = require('../routes/notification.routes');
+const parentRoutes = require('../routes/parent.routes');
 
 // Load Swagger specification
 const swaggerDocument = YAML.load('./swagger.yaml');
@@ -62,6 +63,7 @@ app.use('/api/subjects', subjectRoutes);
 app.use('/api/grades', gradeRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/parents', parentRoutes);
 
 // Swagger UI
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
