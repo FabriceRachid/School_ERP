@@ -19,7 +19,7 @@ class AuthController {
     }
     
     // Validate role
-    const validRoles = ['admin', 'teacher', 'student'];
+    const validRoles = ['admin', 'teacher', 'student', 'parent'];
     if (!validRoles.includes(role)) {
       return res.status(400).json({
         success: false,

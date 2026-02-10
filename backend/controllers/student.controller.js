@@ -1,11 +1,102 @@
 const Student = require('../models/student.model');
 const User = require('../models/user.model');
 const Class = require('../models/class.model');
+const School = require('../models/school.model');
 const { asyncHandler } = require('../middlewares/error.middleware');
 const { roleMiddleware } = require('../middlewares/role.middleware');
 
 class StudentController {
-  // Create new student
+  // Self-registration for students
+  static selfRegister = asyncHandler(async (req, res) => {
+    const { 
+      school_id, 
+      first_name, 
+      last_name, 
+      email, 
+      password,
+      date_of_birth,
+      gender,
+      address,
+      phone,
+      parent_name,
+      parent_phone,
+      emergency_contact_name,
+      emergency_contact_phone,
+      medical_info
+    } = req.body;
+    
+    // Validate required fields
+    if (!school_id || !first_name || !last_name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields',
+        required: ['school_id', 'first_name', 'last_name', 'email', 'password']
+      });
+    }
+    
+    // Check if school exists
+    const school = await School.findById(school_id);
+    if (!school) {
+      return res.status(400).json({
+        success: false,
+        message: 'School not found'
+      });
+    }
+    
+    // Check if email already exists
+    const existingUser = await User.findByEmail(email);
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'Email already registered'
+      });
+    }
+    
+    // Create user first
+    const userData = {
+      school_id,
+      first_name,
+      last_name,
+      email,
+      password,
+      role: 'student',
+      phone: phone || null,
+      address: address || null,
+      date_of_birth: date_of_birth || null
+    };
+    
+    const user = await User.create(userData);
+    
+    // Generate student ID
+    const studentId = `STD${Date.now().toString().slice(-6)}`;
+    
+    // Create student record
+    const studentData = {
+      user_id: user.id,
+      student_id: studentId,
+      parent_name: parent_name || null,
+      parent_phone: parent_phone || null,
+      date_of_birth: date_of_birth || null,
+      gender: gender || null,
+      address: address || null,
+      emergency_contact_name: emergency_contact_name || null,
+      emergency_contact_phone: emergency_contact_phone || null,
+      medical_info: medical_info || null
+    };
+    
+    const student = await Student.create(studentData);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Student registered successfully',
+      data: {
+        user: { id: user.id, email: user.email, role: user.role },
+        student: { id: student.id, student_id: student.student_id }
+      }
+    });
+  });
+
+  // Create new student (admin)
   static create = [
     roleMiddleware('admin'),
     asyncHandler(async (req, res) => {

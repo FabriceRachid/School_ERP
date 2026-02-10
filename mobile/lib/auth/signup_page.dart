@@ -3,6 +3,7 @@ import '../auth/auth_service.dart';
 import '../core/role_router.dart';
 import '../models/user.dart';
 import '../core/validators.dart';
+import '../services/api_service.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -17,6 +18,9 @@ class _SignUpPageState extends State<SignUpPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _parentNameController = TextEditingController();
+  final _parentPhoneController = TextEditingController();
 
   bool obscurePassword = true;
   bool obscureConfirm = true;
@@ -68,29 +72,155 @@ class _SignUpPageState extends State<SignUpPage> {
 
   String _roleLabel(UserRole role) {
     switch (role) {
+      case UserRole.admin:
+        return "Administrateur";
+      case UserRole.teacher:
+        return "Enseignant";
       case UserRole.parent:
         return "Parent";
       case UserRole.student:
-        return "Student";
+        return "Étudiant";
     }
   }
 
-  void _signUp() {
+  void _signUp() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final user = AuthService.signUp(
-      name: _nameController.text.trim(),
-      email: _emailController.text.trim(),
-      password: _passwordController.text.trim(),
-      role: selectedRole,
-    );
+    try {
+      // Split the name into first and last name
+      final fullName = _nameController.text.trim();
+      final nameParts = fullName.split(' ');
+      final firstName = nameParts.isNotEmpty ? nameParts[0] : '';
+      final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => RoleRouter.getHome(user),
-      ),
-    );
+      // Validate that we have both first and last name
+      if (firstName.isEmpty || lastName.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Veuillez entrer un nom complet (prénom et nom)'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Show loading indicator
+      if (mounted) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 20),
+                  Text("Création du compte..."),
+                ],
+              ),
+            );
+          },
+        );
+      }
+
+      // Handle different roles differently
+      if (selectedRole == UserRole.student || selectedRole == UserRole.parent) {
+        // Students and parents self-register with additional information
+        final registrationData = {
+          'school_id': '00000000-0000-0000-0000-000000000001', // Default school
+          'first_name': firstName,
+          'last_name': lastName,
+          'email': _emailController.text.trim(),
+          'password': _passwordController.text.trim(),
+          'phone': _phoneController.text.trim(),
+          'parent_name': _parentNameController.text.trim(),
+          'parent_phone': _parentPhoneController.text.trim(),
+        };
+
+        final result = await ApiService.registerStudent(registrationData);
+        
+        // Close loading dialog
+        if (mounted) {
+          Navigator.pop(context);
+          
+          if (result['success']) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Inscription réussie! Veuillez vous connecter.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pushReplacementNamed(context, '/login');
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(result['message'] ?? 'Erreur d\'inscription'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+        return;
+      }
+
+      // For teachers and admins, use traditional signup
+      final schoolId = '00000000-0000-0000-0000-000000000001';
+
+      final user = await AuthService.signUp(
+        firstName: firstName,
+        lastName: lastName,
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        role: selectedRole.toString().split('.').last,
+        schoolId: schoolId,
+      );
+
+      // Close loading dialog
+      if (mounted) {
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RoleRouter.getHome(user),
+          ),
+        );
+      }
+    } catch (error) {
+      // Close loading dialog if open
+      if (mounted) {
+        Navigator.pop(context);
+        
+        // Show specific error message
+        String errorMessage = error.toString();
+        if (errorMessage.contains('school not found')) {
+          errorMessage = 'École non trouvée. Veuillez contacter l\'administrateur.';
+        } else if (errorMessage.contains('Missing required fields')) {
+          errorMessage = 'Données manquantes. Veuillez vérifier le formulaire.';
+        } else if (errorMessage.contains('Email already registered')) {
+          errorMessage = 'Cet email est déjà utilisé.';
+        } else if (errorMessage.contains('Password validation failed')) {
+          errorMessage = 'Le mot de passe ne respecte pas les règles de sécurité.';
+        }
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+
+  // Get or create a default school for testing
+  Future<String> _getDefaultSchoolId() async {
+    // For testing purposes, use a static default school ID
+    // In production, this should be replaced with proper school selection from a list
+    // The school should be pre-created in the database
+    return '00000000-0000-0000-0000-000000000001';
   }
 
   @override
@@ -368,5 +498,17 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmController.dispose();
+    _phoneController.dispose();
+    _parentNameController.dispose();
+    _parentPhoneController.dispose();
+    super.dispose();
   }
 }

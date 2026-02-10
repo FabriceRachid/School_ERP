@@ -1,13 +1,81 @@
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = (role) => {
-    login({ name: "User", role });
-    navigate(role === "admin" ? "/admin/dashboard" : "/teacher/dashboard");
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email) {
+      newErrors.email = 'Email requis';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email invalide';
+    }
+    
+    if (!formData.password) {
+      newErrors.password = 'Mot de passe requis';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const result = await login(formData.email, formData.password);
+      
+      if (result.success) {
+        // Redirection basée sur le rôle de l'utilisateur
+        const user = JSON.parse(localStorage.getItem('user'));
+        const redirectPath = user?.role === 'admin' 
+          ? '/admin/dashboard' 
+          : '/teacher/dashboard';
+        
+        navigate(redirectPath);
+      } else {
+        // Afficher l'erreur spécifique
+        setErrors({ general: result.message });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la soumission:', error);
+      setErrors({ general: 'Une erreur inattendue est survenue' });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -25,7 +93,7 @@ const Login = () => {
         maxWidth: '1200px'
       }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', color: 'white', marginBottom: '60px' }}>
+        <div style={{ textAlign: 'center', color: 'white', marginBottom: '40px' }}>
           <div style={{
             width: '96px',
             height: '96px',
@@ -55,152 +123,187 @@ const Login = () => {
           <p style={{ fontSize: '20px', color: '#cbd5e1', marginBottom: '32px' }}>
             Plateforme de gestion scolaire moderne et intuitive
           </p>
-          
-          {/* Stats */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '48px',
-            color: '#94a3b8',
-            marginBottom: '32px'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white' }}>500+</div>
-              <div style={{ fontSize: '14px' }}>Écoles</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white' }}>50K+</div>
-              <div style={{ fontSize: '14px' }}>Étudiants</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '32px', fontWeight: 'bold', color: 'white' }}>99.9%</div>
-              <div style={{ fontSize: '14px' }}>Uptime</div>
-            </div>
-          </div>
         </div>
 
-        {/* Login Options */}
+        {/* Login Form */}
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '24px'
+          justifyContent: 'center'
         }}>
           <div style={{
             background: 'rgba(255, 255, 255, 0.1)',
             backdropFilter: 'blur(20px)',
             borderRadius: '24px',
-            padding: '32px',
+            padding: '40px',
             boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             width: '100%',
-            maxWidth: '400px'
+            maxWidth: '450px'
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
-                Administrateur
+            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+              <h2 style={{ fontSize: '28px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
+                Connexion
               </h2>
-              <p style={{ color: '#cbd5e1' }}>Gestion complète du système</p>
+              <p style={{ color: '#cbd5e1' }}>Accédez à votre espace</p>
             </div>
 
-            <button
-              onClick={() => handleLogin("admin")}
-              style={{
-                width: '100%',
-                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                color: 'white',
-                border: 'none',
-                padding: '16px 32px',
-                borderRadius: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 10px 25px rgba(37, 99, 235, 0.4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-4px)';
-                e.target.style.boxShadow = '0 15px 35px rgba(37, 99, 235, 0.6)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 10px 25px rgba(37, 99, 235, 0.4)';
-              }}
-            >
-              <svg style={{ width: '24px', height: '24px', fill: 'white' }} viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-              </svg>
-              <span>Super Administrateur</span>
-            </button>
-          </div>
+            {errors.general && (
+              <div style={{
+                backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                border: '1px solid #ef4444',
+                color: '#fecaca',
+                padding: '12px',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                textAlign: 'center'
+              }}>
+                ❌ {errors.general}
+              </div>
+            )}
 
-          <div style={{ color: '#94a3b8', fontSize: '20px' }}>OU</div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  color: 'white', 
+                  marginBottom: '8px', 
+                  fontWeight: '500' 
+                }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="votre@email.com"
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    border: errors.email ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.2)',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: 'white',
+                    fontSize: '16px',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                />
+                {errors.email && (
+                  <div style={{ 
+                    color: '#ef4444', 
+                    fontSize: '14px', 
+                    marginTop: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <span>⚠️</span> {errors.email}
+                  </div>
+                )}
+              </div>
 
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: '32px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            width: '100%',
-            maxWidth: '400px'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
-                Admin
-              </h2>
-              <p style={{ color: '#cbd5e1' }}>Espace pédagogique</p>
+              <div>
+                <label style={{ 
+                  display: 'block', 
+                  color: 'white', 
+                  marginBottom: '8px', 
+                  fontWeight: '500' 
+                }}>
+                  Mot de passe
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: '12px',
+                    border: errors.password ? '2px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.2)',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: 'white',
+                    fontSize: '16px',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                />
+                {errors.password && (
+                  <div style={{ 
+                    color: '#ef4444', 
+                    fontSize: '14px', 
+                    marginTop: '6px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    <span>⚠️</span> {errors.password}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting || loading}
+                style={{
+                  width: '100%',
+                  background: isSubmitting || loading 
+                    ? 'rgba(255, 255, 255, 0.2)' 
+                    : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '16px 32px',
+                  borderRadius: '16px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: isSubmitting || loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 10px 25px rgba(37, 99, 235, 0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px'
+                }}
+              >
+                {(isSubmitting || loading) ? (
+                  <>
+                    <div style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid transparent',
+                      borderTop: '2px solid white',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }}></div>
+                    <style>{`
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    `}</style>
+                    Chargement...
+                  </>
+                ) : (
+                  <>
+                    <svg style={{ width: '20px', height: '20px', fill: 'white' }} viewBox="0 0 24 24">
+                      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    Se connecter
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div style={{ 
+              textAlign: 'center', 
+              marginTop: '24px', 
+              color: '#94a3b8',
+              fontSize: '14px'
+            }}>
+              <p>Démo: admin@example.com / password123</p>
+              <p>Pas encore de compte ? <a href="/signup" style={{ color: '#60a5fa' }}>Créer un compte</a></p>
             </div>
-
-            <button
-              onClick={() => handleLogin("teacher")}
-              style={{
-                width: '100%',
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                padding: '16px 32px',
-                borderRadius: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-4px)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.target.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.3)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
-              }}
-            >
-              <svg style={{ width: '24px', height: '24px', fill: 'white' }} viewBox="0 0 24 24">
-                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-              </svg>
-              <span>Admin</span>
-            </button>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div style={{ textAlign: 'center', marginTop: '48px' }}>
-          <p style={{ color: '#94a3b8', fontSize: '14px' }}>
-            Version démo • Accès instantané
-          </p>
         </div>
       </div>
     </div>

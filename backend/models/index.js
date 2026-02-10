@@ -85,7 +85,14 @@ const initDatabase = async () => {
         student_id VARCHAR(50) UNIQUE,
         parent_name VARCHAR(200),
         parent_phone VARCHAR(20),
+        date_of_birth DATE,
+        gender VARCHAR(10) CHECK (gender IN ('male', 'female', 'other')),
+        address TEXT,
+        emergency_contact_name VARCHAR(200),
+        emergency_contact_phone VARCHAR(20),
+        medical_info TEXT,
         enrollment_date DATE DEFAULT NOW(),
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'graduated', 'transferred')),
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
       )

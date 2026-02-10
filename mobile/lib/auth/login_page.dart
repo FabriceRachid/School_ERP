@@ -19,22 +19,35 @@ class _LoginPageState extends State<LoginPage> {
 
   bool obscurePassword = true;
 
-  void _submit() {
+  void _submit() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    final user = AuthService.login(
-      _emailController.text.trim(),
-      _passwordController.text.trim(),
-    );
+    try {
+      final user = await AuthService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => RoleRouter.getHome(user),
-      ),
-    );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => RoleRouter.getHome(user),
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur: $error'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override

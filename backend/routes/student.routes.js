@@ -4,7 +4,10 @@ const { authMiddleware } = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 
-// All routes require authentication
+// Public route for student self-registration
+router.post('/register', StudentController.selfRegister);
+
+// All other routes require authentication
 router.use(authMiddleware);
 
 // CRUD operations

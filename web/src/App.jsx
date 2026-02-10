@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
+import Login from "./pages/login";
+import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -16,6 +17,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
         <Route path="/admin/dashboard" element={
           <ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>
