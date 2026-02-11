@@ -1,13 +1,61 @@
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [isLogin, setIsLogin] = useState(true);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    name: "",
+    role: "admin"
+  });
 
-  const handleLogin = (role) => {
-    login({ name: "User", role });
-    navigate(role === "admin" ? "/admin/dashboard" : "/teacher/dashboard");
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (isLogin) {
+      // Login logic
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find(u => u.email === formData.email && u.password === formData.password);
+      
+      if (user) {
+        login(user);
+        navigate(user.role === "admin" ? "/admin/dashboard" : "/teacher/dashboard");
+      } else {
+        alert("Email ou mot de passe incorrect!");
+      }
+    } else {
+      // Register logic
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      
+      if (users.find(u => u.email === formData.email)) {
+        alert("Cet email est déjà utilisé!");
+        return;
+      }
+      
+      const newUser = {
+        id: Date.now(),
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+        createdAt: new Date().toISOString()
+      };
+      
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+      
+      alert("Compte créé avec succès!");
+      setIsLogin(true);
+      setFormData({ email: "", password: "", name: "", role: "admin" });
+    }
   };
 
   return (
@@ -79,35 +127,116 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Login Options */}
+        {/* Auth Form */}
         <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '24px'
+          background: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '24px',
+          padding: '32px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          width: '100%',
+          maxWidth: '400px'
         }}>
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: '32px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            width: '100%',
-            maxWidth: '400px'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
-                Administrateur
-              </h2>
-              <p style={{ color: '#cbd5e1' }}>Gestion complète du système</p>
-            </div>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
+              {isLogin ? 'Connexion' : 'Inscription'}
+            </h2>
+            <p style={{ color: '#cbd5e1' }}>
+              {isLogin ? 'Accédez à votre espace' : 'Créez votre compte'}
+            </p>
+          </div>
 
-            <button
-              onClick={() => handleLogin("admin")}
+          <form onSubmit={handleSubmit}>
+            {!isLogin && (
+              <input
+                type="text"
+                name="name"
+                placeholder="Nom complet"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontSize: '14px',
+                  marginBottom: '16px',
+                  outline: 'none'
+                }}
+              />
+            )}
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
               style={{
                 width: '100%',
-                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontSize: '14px',
+                marginBottom: '16px',
+                outline: 'none'
+              }}
+            />
+
+            <input
+              type="password"
+              name="password"
+              placeholder="Mot de passe"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontSize: '14px',
+                marginBottom: '16px',
+                outline: 'none'
+              }}
+            />
+
+            {!isLogin && (
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleInputChange}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white',
+                  fontSize: '14px',
+                  marginBottom: '24px',
+                  outline: 'none'
+                }}
+              >
+                <option value="admin">Administrateur</option>
+                <option value="teacher">Enseignant</option>
+              </select>
+            )}
+
+            <button
+              type="submit"
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 color: 'white',
                 border: 'none',
                 padding: '16px 32px',
@@ -116,82 +245,35 @@ const Login = () => {
                 fontWeight: '600',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
-                boxShadow: '0 10px 25px rgba(37, 99, 235, 0.4)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px'
+                boxShadow: '0 10px 25px rgba(245, 158, 11, 0.4)',
+                marginBottom: '16px'
               }}
               onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-4px)';
-                e.target.style.boxShadow = '0 15px 35px rgba(37, 99, 235, 0.6)';
+                e.target.style.transform = 'translateY(-2px)';
+                e.target.style.boxShadow = '0 15px 35px rgba(245, 158, 11, 0.6)';
               }}
               onMouseOut={(e) => {
                 e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 10px 25px rgba(37, 99, 235, 0.4)';
+                e.target.style.boxShadow = '0 10px 25px rgba(245, 158, 11, 0.4)';
               }}
             >
-              <svg style={{ width: '24px', height: '24px', fill: 'white' }} viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
-              </svg>
-              <span>Super Administrateur</span>
+              {isLogin ? 'Se connecter' : "S'inscrire"}
             </button>
-          </div>
+          </form>
 
-          <div style={{ color: '#94a3b8', fontSize: '20px' }}>OU</div>
-
-          <div style={{
-            background: 'rgba(255, 255, 255, 0.1)',
-            backdropFilter: 'blur(20px)',
-            borderRadius: '24px',
-            padding: '32px',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            width: '100%',
-            maxWidth: '400px'
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: 'white', marginBottom: '8px' }}>
-                Admin
-              </h2>
-              <p style={{ color: '#cbd5e1' }}>Espace pédagogique</p>
-            </div>
-
+          <div style={{ textAlign: 'center' }}>
             <button
-              onClick={() => handleLogin("teacher")}
+              onClick={() => setIsLogin(!isLogin)}
               style={{
-                width: '100%',
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                padding: '16px 32px',
-                borderRadius: '16px',
-                fontSize: '16px',
-                fontWeight: '600',
+                background: 'none',
+                border: 'none',
+                color: '#cbd5e1',
+                fontSize: '14px',
                 cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '16px'
-              }}
-              onMouseOver={(e) => {
-                e.target.style.transform = 'translateY(-4px)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.2)';
-                e.target.style.boxShadow = '0 15px 35px rgba(0, 0, 0, 0.3)';
-              }}
-              onMouseOut={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.2)';
+                textDecoration: 'underline'
               }}
             >
-              <svg style={{ width: '24px', height: '24px', fill: 'white' }} viewBox="0 0 24 24">
-                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
-              </svg>
-              <span>Admin</span>
+              {isLogin ? "Pas encore de compte ? S'inscrire" : 'Déjà un compte ? Se connecter'}
             </button>
           </div>
         </div>
