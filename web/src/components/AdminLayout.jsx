@@ -59,7 +59,7 @@ const AdminLayout = ({ children }) => (
             <div style={{
               width: '36px',
               height: '36px',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
@@ -67,7 +67,7 @@ const AdminLayout = ({ children }) => (
               color: 'white',
               fontWeight: 'bold',
               fontSize: '14px',
-              boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)'
+              boxShadow: '0 2px 4px rgba(245, 158, 11, 0.3)'
             }}>
               A
             </div>

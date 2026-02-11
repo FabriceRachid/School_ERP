@@ -9,9 +9,13 @@ const Sidebar = () => {
     { path: "/admin/dashboard", icon: "📊", label: "Dashboard", badge: null },
     { path: "/admin/students", icon: "👥", label: "Students", badge: "120" },
     { path: "/admin/teachers", icon: "👨‍🏫", label: "Teachers", badge: "15" },
+    { path: "/admin/parents", icon: "👨‍👩‍👧‍👦", label: "Parents", badge: "85" },
     { path: "/admin/classes", icon: "📚", label: "Classes", badge: "8" },
+    { path: "/admin/library", icon: "📖", label: "Library", badge: "250" },
     { path: "/admin/payments", icon: "💰", label: "Payments", badge: "3" },
     { path: "/admin/reports", icon: "📈", label: "Reports", badge: null },
+    { path: "/admin/account", icon: "👤", label: "Account", badge: null },
+    { path: "/admin/settings", icon: "⚙️", label: "Settings", badge: null },
   ];
 
   return (
@@ -31,7 +35,7 @@ const Sidebar = () => {
           <div style={{
             width: '40px',
             height: '40px',
-            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
             borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
@@ -39,7 +43,7 @@ const Sidebar = () => {
             fontSize: '18px',
             fontWeight: 'bold',
             color: 'white',
-            boxShadow: '0 4px 8px rgba(59, 130, 246, 0.3)'
+            boxShadow: '0 4px 8px rgba(245, 158, 11, 0.3)'
           }}>
             SE
           </div>

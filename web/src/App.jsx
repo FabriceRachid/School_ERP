@@ -7,6 +7,11 @@ import Students from "./pages/admin/Students";
 import Teachers from "./pages/admin/Teachers";
 import Classes from "./pages/admin/Classes";
 import Payments from "./pages/admin/Payments";
+import Reports from "./pages/admin/Reports";
+import Parents from "./pages/admin/Parents";
+import Library from "./pages/admin/Library";
+import Account from "./pages/admin/Account";
+import Settings from "./pages/admin/Settings";
 
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import Grades from "./pages/teacher/Grades";
@@ -31,6 +36,21 @@ function App() {
         } />
         <Route path="/admin/payments" element={
           <ProtectedRoute role="admin"><Payments /></ProtectedRoute>
+        } />
+        <Route path="/admin/reports" element={
+          <ProtectedRoute role="admin"><Reports /></ProtectedRoute>
+        } />
+        <Route path="/admin/parents" element={
+          <ProtectedRoute role="admin"><Parents /></ProtectedRoute>
+        } />
+        <Route path="/admin/library" element={
+          <ProtectedRoute role="admin"><Library /></ProtectedRoute>
+        } />
+        <Route path="/admin/account" element={
+          <ProtectedRoute role="admin"><Account /></ProtectedRoute>
+        } />
+        <Route path="/admin/settings" element={
+          <ProtectedRoute role="admin"><Settings /></ProtectedRoute>
         } />
 
         <Route path="/teacher/dashboard" element={
