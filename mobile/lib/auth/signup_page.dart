@@ -220,7 +220,7 @@ class _SignUpPageState extends State<SignUpPage> {
                           child: ElevatedButton(
                             onPressed: _signUp,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF039BE5),
+                              backgroundColor: const Color(0xFFF2B14A),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -252,7 +252,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                   TextSpan(
                                     text: "Login",
                                     style: TextStyle(
-                                      color: Color(0xFF039BE5),
+                                      color: Color(0xFFF2B14A),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

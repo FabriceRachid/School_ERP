@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                             onPressed: _submit,
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                              const Color(0xFF039BE5),
+                              const Color(0xFFF2B14A),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -157,7 +157,7 @@ class _LoginPageState extends State<LoginPage> {
                                   TextSpan(
                                     text: "Sign Up",
                                     style: TextStyle(
-                                      color: Color(0xFF039BE5),
+                                      color: Color(0xFFF2B14A),
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),

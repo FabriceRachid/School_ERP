@@ -67,6 +67,7 @@ flutter:
     - assets/images/school.jpeg
     - assets/images/login.jpeg
     - assets/images/log.jpeg
+    - assets/images/classe.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

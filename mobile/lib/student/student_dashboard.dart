@@ -65,7 +65,7 @@ class _Card extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Colors.green),
+            Icon(icon, size: 40, color: Color(0xFFF2B14A)),
             const SizedBox(height: 10),
             Text(title, textAlign: TextAlign.center),
           ],
