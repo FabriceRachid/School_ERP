@@ -6,20 +6,35 @@ import { schools, students, teachers, payments } from "@/data/mock-data";
 import { School, Users, GraduationCap, DollarSign, TrendingUp } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { getSchools } from "@/services/schools";
+import { getStudents } from "@/services/students";
+import { getTeachers } from "@/services/teachers";
 
 const SuperAdminDashboard = () => {
   const [schoolsList, setSchoolsList] = useState(schools);
+  const [studentsList, setStudentsList] = useState(students);
+  const [teachersList, setTeachersList] = useState(teachers);
 
   useEffect(() => {
     const stored = getSchools();
     if (stored.length > 0) {
       setSchoolsList(stored);
     }
+    
+    // Load real-time data
+    const storedStudents = getStudents();
+    if (storedStudents.length > 0) {
+      setStudentsList(storedStudents);
+    }
+    
+    const storedTeachers = getTeachers();
+    if (storedTeachers.length > 0) {
+      setTeachersList(storedTeachers);
+    }
   }, []);
 
   const activeSchools = schoolsList.filter(s => s.status === "active");
-  const totalStudents = activeSchools.reduce((a, s) => a + s.studentsCount, 0);
-  const totalTeachers = activeSchools.reduce((a, s) => a + s.teachersCount, 0);
+  const totalStudents = studentsList.length;
+  const totalTeachers = teachersList.length;
   const totalRevenue = payments.filter(p => p.paidAmount > 0).reduce((a, p) => a + p.paidAmount, 0);
 
   const schoolChartData = activeSchools.map(s => ({ name: s.name.split(" ").slice(0, 2).join(" "), élèves: s.studentsCount, enseignants: s.teachersCount }));

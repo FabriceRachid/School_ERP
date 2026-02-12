@@ -11,10 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { getTeachersBySchool, getSubjectById, getClassById, subjects, classes, teachers as mockTeachers } from "@/data/mock-data";
-import { Plus, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Teacher } from "@/data/mock-data";
-import { getTeachers, saveTeachers, addTeacher, getTeachersBySchool as getTeachersBySchoolService } from "@/services/teachers";
+import { getTeachersBySchool as getTeachersBySchoolService, addTeacher, deleteTeacher } from "@/services/teachers";
 
 const TeachersPage = () => {
   const { user } = useAuth();
@@ -88,6 +88,14 @@ const TeachersPage = () => {
     toast({ title: "Succès", description: "Enseignant ajouté avec succès" });
   };
 
+  const handleDeleteTeacher = (id: string) => {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cet enseignant ?")) {
+      deleteTeacher(id);
+      setTeachersList(prev => prev.filter(t => t.id !== id));
+      toast({ title: "Succès", description: "Enseignant supprimé avec succès" });
+    }
+  };
+
   return (
     <DashboardLayout>
       <PageHeader title="Gestion des Enseignants" description={`${teachersList.length} enseignants`}>
@@ -137,7 +145,7 @@ const TeachersPage = () => {
               </div>
               <div className="space-y-2">
                 <Label>Matières</Label>
-                <Select value={formData.subjects} onValueChange={(values) => handleSubjectsChange(values as string[])} multiple>
+                <Select value={formData.subjects.join(',')} onValueChange={(value) => handleSubjectsChange(value.split(',').filter(Boolean))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner les matières (1-2)" />
                   </SelectTrigger>
@@ -151,7 +159,7 @@ const TeachersPage = () => {
               </div>
               <div className="space-y-2">
                 <Label>Classes</Label>
-                <Select value={formData.classes} onValueChange={(values) => handleClassesChange(values as string[])} multiple>
+                <Select value={formData.classes.join(',')} onValueChange={(value) => handleClassesChange(value.split(',').filter(Boolean))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner les classes" />
                   </SelectTrigger>
@@ -183,6 +191,7 @@ const TeachersPage = () => {
                 <TableHead>Téléphone</TableHead>
                 <TableHead>Matières</TableHead>
                 <TableHead>Classes</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -198,6 +207,27 @@ const TeachersPage = () => {
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {teacher.classes.map(cid => <Badge key={cid} variant="outline" className="text-xs">{getClassById(cid)?.name || cid}</Badge>)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-8 w-8 p-0"
+                        title="Modifier"
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                        onClick={() => handleDeleteTeacher(teacher.id)}
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
                     </div>
                   </TableCell>
                 </TableRow>
