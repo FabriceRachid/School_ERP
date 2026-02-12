@@ -14,7 +14,7 @@ import { getTeachersBySchool, getSubjectById, getClassById, subjects, classes, t
 import { Plus, Edit, Trash2, Search } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { Teacher } from "@/data/mock-data";
-import { getTeachersBySchool as getTeachersBySchoolService, addTeacher, deleteTeacher } from "@/services/teachers";
+import { getTeachersBySchool as getTeachersBySchoolService, addTeacher, deleteTeacher, getTeachers, saveTeachers } from "@/services/teachers";
 
 const TeachersPage = () => {
   const { user } = useAuth();
