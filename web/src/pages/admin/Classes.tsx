@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { getClassesBySchool, classes as mockClasses } from "@/data/mock-data";
-import { Plus, Edit, Trash2, Power, PowerOff } from "lucide-react";
+import { Plus, Edit, Power } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ClassRoom } from "@/data/mock-data";
 
@@ -64,11 +64,8 @@ const ClassesPage = () => {
   };
 
   const handleDeleteClass = (id: string) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette classe ? Cette action affectera également l'emploi du temps.")) {
-      const updatedClasses = classesList.filter(c => c.id !== id);
-      setClassesList(updatedClasses);
-      toast({ title: "Succès", description: "Classe supprimée avec succès" });
-    }
+    // Suppression de la fonction de suppression comme demandé
+    toast({ title: "Information", description: "La suppression de classes est désactivée pour maintenir la cohérence des données" });
   };
 
   return (
@@ -153,15 +150,6 @@ const ClassesPage = () => {
                           title="Activer/Désactiver"
                         >
                           <Power className="w-3 h-3" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="ghost" 
-                          className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                          onClick={() => handleDeleteClass(c.id)}
-                          title="Supprimer"
-                        >
-                          <Trash2 className="w-3 h-3" />
                         </Button>
                       </div>
                     </TableCell>

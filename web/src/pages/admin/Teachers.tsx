@@ -51,6 +51,10 @@ const TeachersPage = () => {
   };
 
   const handleSubjectsChange = (values: string[]) => {
+    if (values.length > 2) {
+      toast({ title: "Limite atteinte", description: "Un enseignant peut enseigner maximum 2 matières", variant: "destructive" });
+      return;
+    }
     setFormData({ ...formData, subjects: values });
   };
 
@@ -133,9 +137,9 @@ const TeachersPage = () => {
               </div>
               <div className="space-y-2">
                 <Label>Matières</Label>
-                <Select>
+                <Select value={formData.subjects} onValueChange={(values) => handleSubjectsChange(values as string[])} multiple>
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner les matières" />
+                    <SelectValue placeholder="Sélectionner les matières (1-2)" />
                   </SelectTrigger>
                   <SelectContent>
                     {schoolSubjects.map(subject => (
@@ -143,10 +147,11 @@ const TeachersPage = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">Sélectionnez 1 ou 2 matières maximum</p>
               </div>
               <div className="space-y-2">
                 <Label>Classes</Label>
-                <Select>
+                <Select value={formData.classes} onValueChange={(values) => handleClassesChange(values as string[])} multiple>
                   <SelectTrigger>
                     <SelectValue placeholder="Sélectionner les classes" />
                   </SelectTrigger>

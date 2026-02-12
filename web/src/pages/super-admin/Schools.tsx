@@ -9,25 +9,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { schools, users } from "@/data/mock-data";
-import { Plus, Search, School, Edit, Power, PowerOff, X } from "lucide-react";
+import { Plus, Search, School, Edit, Power, PowerOff, X, UserPlus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { School as SchoolType } from "@/data/mock-data";
+import { School as SchoolType, User } from "@/data/mock-data";
 import { getSchools, saveSchools, addSchool, updateSchool, toggleSchoolStatus } from "@/services/schools";
 
 const SchoolsPage = () => {
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [adminDialogOpen, setAdminDialogOpen] = useState(false);
+  const [selectedSchoolId, setSelectedSchoolId] = useState("");
   const [schoolsList, setSchoolsList] = useState<SchoolType[]>([]);
+  const [usersList, setUsersList] = useState<User[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     address: "",
     phone: "",
     email: "",
     adminId: "",
-    studentsCount: 0,
-    teachersCount: 0,
-    classesCount: 0,
+  });
+  const [adminFormData, setAdminFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    role: "admin" as "admin" | "teacher",
   });
   const [editingSchool, setEditingSchool] = useState<SchoolType | null>(null);
 
@@ -128,6 +135,41 @@ const SchoolsPage = () => {
         description: `L'école est maintenant ${updated.status === "active" ? "active" : "inactive"}` 
       });
     }
+  };
+
+  const handleAddAdmin = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!adminFormData.firstName || !adminFormData.lastName || !adminFormData.email || !adminFormData.password) {
+      toast({ title: "Erreur", description: "Veuillez remplir tous les champs", variant: "destructive" });
+      return;
+    }
+    
+    const newAdmin: User = {
+      id: `u${Date.now()}`,
+      name: `${adminFormData.firstName} ${adminFormData.lastName}`,
+      email: adminFormData.email,
+      password: adminFormData.password,
+      role: adminFormData.role,
+      schoolId: selectedSchoolId,
+    };
+    
+    // This would ideally save to localStorage
+    setUsersList([...usersList, newAdmin]);
+    toast({ title: "Succès", description: "Administrateur ajouté avec succès" });
+    setAdminFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      role: "admin",
+    });
+    setAdminDialogOpen(false);
+  };
+  
+  const handleOpenAdminDialog = (schoolId: string) => {
+    setSelectedSchoolId(schoolId);
+    setAdminDialogOpen(true);
   };
 
   return (
@@ -262,6 +304,15 @@ const SchoolsPage = () => {
                       <Button 
                         variant="ghost" 
                         size="icon" 
+                        className="h-8 w-8"
+                        onClick={() => handleOpenAdminDialog(school.id)}
+                        title="Ajouter un administrateur"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
                         className={`h-8 w-8 ${school.status === "active" ? "text-red-600 hover:text-red-700" : "text-green-600 hover:text-green-700"}`}
                         onClick={() => handleToggleStatus(school.id)}
                         title={school.status === "active" ? "Désactiver l'école" : "Activer l'école"}
@@ -334,6 +385,67 @@ const SchoolsPage = () => {
               </Select>
             </div>
             <Button type="submit" className="w-full">Mettre à jour l'école</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    {/* Admin Dialog */}
+      <Dialog open={adminDialogOpen} onOpenChange={setAdminDialogOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Ajouter un administrateur</DialogTitle></DialogHeader>
+          <form className="space-y-4" onSubmit={handleAddAdmin}>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Prénom *</Label>
+                <Input 
+                  placeholder="Prénom" 
+                  value={adminFormData.firstName}
+                  onChange={(e) => setAdminFormData({...adminFormData, firstName: e.target.value})}
+                  required 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Nom *</Label>
+                <Input 
+                  placeholder="Nom" 
+                  value={adminFormData.lastName}
+                  onChange={(e) => setAdminFormData({...adminFormData, lastName: e.target.value})}
+                  required 
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Email *</Label>
+              <Input 
+                type="email" 
+                placeholder="email@ecole.edu" 
+                value={adminFormData.email}
+                onChange={(e) => setAdminFormData({...adminFormData, email: e.target.value})}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Mot de passe *</Label>
+              <Input 
+                type="password" 
+                placeholder="Mot de passe" 
+                value={adminFormData.password}
+                onChange={(e) => setAdminFormData({...adminFormData, password: e.target.value})}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Rôle *</Label>
+              <Select value={adminFormData.role} onValueChange={(value) => setAdminFormData({...adminFormData, role: value as "admin" | "teacher"})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Administrateur</SelectItem>
+                  <SelectItem value="teacher">Enseignant</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="submit" className="w-full">Ajouter l'administrateur</Button>
           </form>
         </DialogContent>
       </Dialog>
