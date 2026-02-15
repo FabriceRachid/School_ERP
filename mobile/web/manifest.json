@@ -1,11 +1,11 @@
 {
-    "name": "app_mobile_sidwaya1",
-    "short_name": "app_mobile_sidwaya1",
+    "name": "NexaCampus ERP",
+    "short_name": "NexaCampus",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Plateforme mobile pour le suivi scolaire parents et eleves.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
