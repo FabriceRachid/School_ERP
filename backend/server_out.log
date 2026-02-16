@@ -1,0 +1,24 @@
+Server running on port 3004
+Connected to PostgreSQL database
+Database schema initialized successfully
+Database initialized successfully
+Auth Middleware - User Info: {
+  userId: '4b2e46f6-f02b-4301-bc6c-05eddf88388f',
+  schoolId: null,
+  role: 'admin'
+}
+Auth Middleware - User Info: {
+  userId: '5053449d-53b3-46b7-8993-078fdca302bc',
+  schoolId: '11111111-1111-1111-1111-111111111111',
+  role: 'admin'
+}
+Auth Middleware - User Info: {
+  userId: '5053449d-53b3-46b7-8993-078fdca302bc',
+  schoolId: '11111111-1111-1111-1111-111111111111',
+  role: 'admin'
+}
+Auth Middleware - User Info: {
+  userId: '5053449d-53b3-46b7-8993-078fdca302bc',
+  schoolId: '11111111-1111-1111-1111-111111111111',
+  role: 'admin'
+}
