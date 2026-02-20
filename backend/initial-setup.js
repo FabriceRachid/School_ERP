@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { pool } = require('./backend/models');
+const { pool } = require('./models');
 
 async function initialSystemSetup() {
   try {

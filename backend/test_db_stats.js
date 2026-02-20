@@ -1,5 +1,5 @@
 // Direct database test for school statistics
-const { pool } = require('./backend/models');
+const { pool } = require('./models');
 
 async function testDatabaseStats() {
   try {
